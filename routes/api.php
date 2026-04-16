@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BallotController;
 use App\Http\Controllers\CasillaController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ParticipationController;
@@ -101,6 +102,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete("/deleteMultiple", [UserController::class, 'deleteMultiple']);
     });
 
+    // Rutas para la gestión de proyectos
+    Route::prefix("projects")->group(function () {
+        Route::get("/", [ProjectController::class, 'index']);
+        Route::get("/selectIndex", [ProjectController::class, 'selectIndex']);
+        Route::post("/createOrUpdate", [ProjectController::class, 'createOrUpdate']);
+        Route::get("/id/{id}", [ProjectController::class, 'show']);
+        Route::delete("/delete/{id}", [ProjectController::class, 'delete']);
+        Route::get("/disEnable/{id}/{active}", [ProjectController::class, 'disEnable']);
+        Route::delete("/deleteMultiple", [ProjectController::class, 'deleteMultiple']);
+    });
 
 
     // Rutas para la gestión de participaciones
@@ -114,16 +125,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete("/deleteMultiple", [ParticipationController::class, 'deleteMultiple']);
     });
 
-    // Rutas para la gestión de proyectos
-    Route::prefix("projects")->group(function () {
-        Route::get("/", [ProjectController::class, 'index']);
-        Route::get("/selectIndex", [ProjectController::class, 'selectIndex']);
-        Route::post("/createOrUpdate", [ProjectController::class, 'createOrUpdate']);
-        Route::get("/id/{id}", [ProjectController::class, 'show']);
-        Route::delete("/delete/{id}", [ProjectController::class, 'delete']);
-        Route::get("/disEnable/{id}/{active}", [ProjectController::class, 'disEnable']);
-        Route::delete("/deleteMultiple", [ProjectController::class, 'deleteMultiple']);
+    // Rutas para la gestión de boletas
+    Route::prefix("ballots")->group(function () {
+        Route::get("/", [BallotController::class, 'index']);
+        Route::get("/selectIndex", [BallotController::class, 'selectIndex']);
+        Route::post("/createOrUpdate", [BallotController::class, 'createOrUpdate']);
+        Route::get("/id/{id}", [BallotController::class, 'show']);
+        Route::delete("/delete/{id}", [BallotController::class, 'delete']);
+        Route::get("/disEnable/{id}/{active}", [BallotController::class, 'disEnable']);
+        Route::delete("/deleteMultiple", [BallotController::class, 'deleteMultiple']);
     });
+
+
 
     // Dashboard
     // Route::prefix("dashboard")->group(function () {

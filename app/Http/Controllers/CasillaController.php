@@ -5,244 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\Casilla;
 use App\Models\ObjResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
-class CasillaController extends Controller
+class CasillaController extends BaseCrudController
 {
+    protected $modelClass = Casilla::class;
+    // protected $resourceClass = CasillaResource::class; // Opcional
+
+    protected $validationRules = [
+        'type'      => 'nullable|string|in:Rural,Urbana,Especial',
+        'district'  => 'nullable|integer',
+        'perimeter' => 'nullable|string|max:255',
+        'place'     => 'nullable|string|max:255',
+        'location'  => 'nullable|string|max:255',
+        'active'    => 'boolean',
+    ];
+
+    protected $validationMessages = [
+        'type.in' => 'El tipo debe ser Rural, Urbana o Especial.',
+    ];
+
+    // Para el método selectIndex: personalizamos la consulta porque queremos un label compuesto
+    protected $selectLabel = 'id'; // Valor por defecto, pero lo sobrescribiremos en el método
+
+    // Orden por defecto (opcional)
+    protected $defaultOrderBy = ['id' => 'desc'];
+
+    // Filtro automático por active según rol (role_id > 2 solo ven activos)
+    protected $useAuthFilter = true;
+
     /**
-     * Mostrar lista de casillas.
-     *
-     * @return \Illuminate\Http\Response $response
+     * Sobrescribimos selectIndex para mostrar un label personalizado:
+     * "id - place - location"
      */
-    public function index(Response $response)
+    public function selectIndex(Request $request)
     {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
         try {
-            $auth = Auth::user();
-            // $list = Casilla::orderBy('id', 'desc');
-            $list = Casilla::orderBy('id', 'desc');
-            if ($auth->role_id > 2) $list = $list->where("active", true);
-            $list = $list->get();
-
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = 'Peticion satisfactoria | Lista de casillas.';
-            $response->data["result"] = $list;
-        } catch (\Exception $ex) {
-            $msg = "CasillaController ~ index ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
-        }
-        return response()->json($response, $response->data["status_code"]);
-    }
-
-    /**
-     * Mostrar listado para un selector.
-     *
-     * @return \Illuminate\Http\Response $response
-     */
-    public function selectIndex(Response $response)
-    {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
-        $auth = Auth::user();
-
-        try {
-            $list = Casilla::where('active', true)
+            $auth = auth()->user();
+            $query = $this->modelClass::where('active', true)
                 ->select('id as id', DB::raw("CONCAT(id, ' - ', TRIM(CONCAT(place, ' - ', COALESCE(location, '')))) as label"))
                 ->orderBy(DB::raw("CONCAT(id, ' - ', TRIM(CONCAT(place, ' - ', COALESCE(location, ''))))"), 'asc');
 
-
-            if ($auth->role_id == 3) {
-                $list = $list->where('id', $auth->id);
+            if ($auth && $auth->role_id == 3) {
+                $query->where('id', $auth->id);
             }
 
-            $list = $list->get();
+            $list = $query->get();
 
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = 'peticion satisfactoria | lista de casillas.';
-            $response->data["alert_text"] = "Casillas encontrados";
-            $response->data["result"] = $list;
-            $response->data["toast"] = false;
+            return ObjResponse::success($list, 'Lista select obtenida');
         } catch (\Exception $ex) {
-            $msg = "CasillaController ~ selectIndex ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
+            $msg = get_class($this) . " ~ selectIndex: " . $ex->getMessage();
+            \Log::error($msg);
+            return ObjResponse::serverError('Error al obtener lista select', $ex);
         }
-        return response()->json($response, $response->data["status_code"]);
     }
 
-    /**
-     * Crear o Actualizar casilla.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param Int $id
-     * 
-     * @return \Illuminate\Http\Response $response
-     */
-    public function createOrUpdate(Request $request, Response $response, Int $id = null)
-    {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
-        try {
-            $validator = $this->validateAvailableData($request, 'casillas', [
-                [
-                    'field' => 'type',
-                    'label' => 'Tipo de área',
-                    'rules' => ['string'],
-                    'messages' => [
-                        'string' => 'El tipo debe de ser Rural, Urbana o Especial.',
-                    ]
-                ],
-                [
-                    'field' => 'district',
-                    'label' => 'Distrito',
-                    'rules' => ['number'],
-                    'messages' => [
-                        'string' => 'El distrito debe ser numero.',
-                    ]
-                ],
-                [
-                    'field' => 'perimeter',
-                    'label' => 'Perímetro',
-                    'rules' => ['string'],
-                    'messages' => [
-                        'string' => 'El perímetro debe de ser un texto.',
-                    ],
-                    'validateRequired' => 0,
-                ]
-            ], $id);
-            if ($validator->fails()) {
-                $response->data = ObjResponse::error($validator->errors());
-                $response->data["message"] = "Error de validación";
-                $response->data["errors"] = $validator->errors();
-                return response()->json($response);
-            }
-
-            $casilla = Casilla::find($id);
-            if (!$casilla) $casilla = new Casilla();
-
-            $casilla->fill($request->all());
-            $casilla->save();
-
-
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = $id > 0 ? 'peticion satisfactoria | casilla editado.' : 'peticion satisfactoria | casilla registrado.';
-            $response->data["alert_text"] = $id > 0 ? "Casilla editado" : "Casilla registrado";
-        } catch (\Exception $ex) {
-            $msg = "CasillaController ~ createOrUpdate ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
-        }
-        return response()->json($response, $response->data["status_code"]);
-    }
-
-    /**
-     * Mostrar casilla.
-     *
-     * @param   int $id
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response $response
-     */
-    public function show(Request $request, Response $response, Int $id, bool $internal = false)
-    {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
-        try {
-            $casilla = Casilla::find($id);
-            if ($internal) return $casilla;
-
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = 'peticion satisfactoria | casilla encontrado.';
-            $response->data["result"] = $casilla;
-        } catch (\Exception $ex) {
-            $msg = "CasillaController ~ show ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
-        }
-        return response()->json($response, $response->data["status_code"]);
-    }
-
-    /**
-     * "Eliminar" (cambiar estado activo=0) casilla.
-     *
-     * @param  int $id
-     * @param  int $active
-     * @return \Illuminate\Http\Response $response
-     */
-    public function delete(Response $response, Int $id)
-    {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
-        try {
-            Casilla::where('id', $id)
-                ->update([
-                    'active' => false,
-                    'deleted_at' => date('Y-m-d H:i:s')
-                ]);
-
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = "peticion satisfactoria | casilla eliminado.";
-            $response->data["alert_text"] = "Casilla eliminado";
-        } catch (\Exception $ex) {
-            $msg = "CasillaController ~ delete ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
-        }
-        return response()->json($response, $response->data["status_code"]);
-    }
-
-    /**
-     * "Activar o Desactivar" (cambiar estado activo=1/0).
-     *
-     * @param  int $id
-     * @param  int $active
-     * @return \Illuminate\Http\Response $response
-     */
-    public function disEnable(Response $response, Int $id, string $active)
-    {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
-        try {
-            Casilla::where('id', $id)
-                ->update([
-                    'active' => $active === "reactivar" ? 1 : 0
-                ]);
-
-            $description = $active == "reactivar" ? 'reactivado' : 'desactivado';
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = "peticion satisfactoria | casilla $description.";
-            $response->data["alert_text"] = "Casilla $description";
-        } catch (\Exception $ex) {
-            $msg = "CasillaController ~ disEnable ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
-        }
-        return response()->json($response, $response->data["status_code"]);
-    }
-
-    /**
-     * Eliminar uno o varios registros.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response $response
-     */
-    public function deleteMultiple(Request $request, Response $response)
-    {
-        $response->data = ObjResponse::default()->getData(true); // convertir a array
-        try {
-            // echo "$request->ids";
-            // $deleteIds = explode(',', $ids);
-            $countDeleted = sizeof($request->ids);
-            Casilla::whereIn('id', $request->ids)->update([
-                'active' => false,
-                'deleted_at' => date('Y-m-d H:i:s'),
-            ]);
-            $response->data = ObjResponse::success()->getData(true); // convertir a array;
-            $response->data["message"] = $countDeleted == 1 ? 'peticion satisfactoria | registro eliminado.' : "peticion satisfactoria | registros eliminados ($countDeleted).";
-            $response->data["alert_text"] = $countDeleted == 1 ? 'Registro eliminado' : "Registros eliminados  ($countDeleted)";
-        } catch (\Exception $ex) {
-            $msg = "CasillaController ~ deleteMultiple ~ Hubo un error -> " . $ex->getMessage();
-            Log::error($msg);
-            $response->data = ObjResponse::error($msg);
-        }
-        return response()->json($response, $response->data["status_code"]);
-    }
+    // Opcional: si necesitas personalizar la respuesta del método show para incluir relaciones
+    // public function show(Request $request, $id, $internal = false)
+    // {
+    //     $casilla = parent::show($request, $id, true);
+    //     if (!$casilla || $internal) return $casilla;
+    //     return ObjResponse::success($casilla, 'Casilla encontrada');
+    // }
 }
