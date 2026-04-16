@@ -24,66 +24,66 @@ class UserSeeder extends Seeder
             ],
             [
                 'email' => 'casilla1a@gmail.com',
-                'username' => 'Casilla1A',
+                'username' => 'Casilla 1A',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
                 'casilla_id' => 1, //Casilla 1 
             ],
             [
                 'email' => 'casilla1b@gmail.com',
-                'username' => 'Casilla1B',
+                'username' => 'Casilla 1B',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
                 'casilla_id' => 1, //Casilla 1 
             ],
             [
                 'email' => 'casilla1c@gmail.com',
-                'username' => 'Casilla1C',
+                'username' => 'Casilla 1C',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
                 'casilla_id' => 1, //Casilla 1 
             ],
             [
                 'email' => 'casilla2a@gmail.com',
-                'username' => 'Casilla2A',
+                'username' => 'Casilla 2A',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
+                'casilla_id' => 2, //Casilla 2
             ],
             [
                 'email' => 'casilla2b@gmail.com',
-                'username' => 'Casilla2B',
+                'username' => 'Casilla 2B',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
+                'casilla_id' => 2, //Casilla 2
             ],
             [
                 'email' => 'casilla2c@gmail.com',
-                'username' => 'Casilla2C',
+                'username' => 'Casilla 2C',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
+                'casilla_id' => 2, //Casilla 2
             ],
             [
                 'email' => 'casilla3a@gmail.com',
-                'username' => 'Casilla3A',
+                'username' => 'Casilla 3A',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
+                'casilla_id' => 3, //Casilla 3
             ],
             [
                 'email' => 'casilla3b@gmail.com',
-                'username' => 'Casilla3B',
+                'username' => 'Casilla 3B',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
+                'casilla_id' => 3, //Casilla 3
             ],
             [
                 'email' => 'casilla3c@gmail.com',
-                'username' => 'Casilla3C',
+                'username' => 'Casilla 3C',
                 'password' => Hash::make('123456'),
                 'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
+                'casilla_id' => 3, //Casilla 3
             ]
         ];
 
