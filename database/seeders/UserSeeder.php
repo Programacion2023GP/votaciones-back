@@ -15,77 +15,28 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
+            // Admin
             [
                 'email' => 'admin@gmail.com',
                 'username' => 'admin',
                 'password' => Hash::make('desarrollo'),
-                'role_id' => 1, //SuperAdmin
-                'casilla_id' => null, //SuperAdmin
+                'role_id' => 1, // SuperAdmin
+                'casilla_id' => null,
             ],
-            [
-                'email' => 'casilla1a@gmail.com',
-                'username' => 'Casilla 1A',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
-            ],
-            [
-                'email' => 'casilla1b@gmail.com',
-                'username' => 'Casilla 1B',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
-            ],
-            [
-                'email' => 'casilla1c@gmail.com',
-                'username' => 'Casilla 1C',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 1, //Casilla 1 
-            ],
-            [
-                'email' => 'casilla2a@gmail.com',
-                'username' => 'Casilla 2A',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 2, //Casilla 2
-            ],
-            [
-                'email' => 'casilla2b@gmail.com',
-                'username' => 'Casilla 2B',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 2, //Casilla 2
-            ],
-            [
-                'email' => 'casilla2c@gmail.com',
-                'username' => 'Casilla 2C',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 2, //Casilla 2
-            ],
-            [
-                'email' => 'casilla3a@gmail.com',
-                'username' => 'Casilla 3A',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 3, //Casilla 3
-            ],
-            [
-                'email' => 'casilla3b@gmail.com',
-                'username' => 'Casilla 3B',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 3, //Casilla 3
-            ],
-            [
-                'email' => 'casilla3c@gmail.com',
-                'username' => 'Casilla 3C',
-                'password' => Hash::make('123456'),
-                'role_id' => 3, //Casilla
-                'casilla_id' => 3, //Casilla 3
-            ]
         ];
+
+        // Generar 3 usuarios por cada casilla del 1 al 18
+        for ($casilla = 1; $casilla <= 18; $casilla++) {
+            foreach (['A', 'B', 'C'] as $letra) {
+                $users[] = [
+                    'email' => "casilla{$casilla}{$letra}@gmail.com",
+                    'username' => "Casilla {$casilla}{$letra}",
+                    'password' => Hash::make('123456'),
+                    'role_id' => 3, // Rol de casilla
+                    'casilla_id' => $casilla,
+                ];
+            }
+        }
 
         $data = array_map(function ($user) {
             return [
