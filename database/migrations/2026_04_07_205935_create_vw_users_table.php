@@ -33,7 +33,8 @@ return new class extends Migration
                 c.perimeter AS casilla_perimeter,
                 c.place AS casilla_place,
                 c.location AS casilla_location,
-                c.active AS casilla_active
+                c.active AS casilla_active,
+                CONCAT(u.username, ' - ', TRIM(CONCAT(c.place, ' → ', COALESCE(c.location, ''), ' (', COALESCE(c.type, ''),') | Distrito: ',COALESCE(c.district,'')))) AS full_name 
             FROM users u
             LEFT JOIN roles r ON u.role_id = r.id
             LEFT JOIN casillas c ON u.casilla_id = c.id
