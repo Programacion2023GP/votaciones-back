@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
                 $users[] = [
                     'email' => "casilla{$casilla}{$letra}@gmail.com",
                     'username' => "Casilla {$casilla}{$letra}",
-                    'password' => Hash::make('123456'),
+                    'password' => Hash::make("user{$casilla}"),
                     'role_id' => 3, // Rol de casilla
                     'casilla_id' => $casilla,
                 ];

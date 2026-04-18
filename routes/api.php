@@ -8,6 +8,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ParticipationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
 use App\Models\Menu;
 use App\Models\ObjResponse;
@@ -136,11 +137,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete("/deleteMultiple", [BallotController::class, 'deleteMultiple']);
     });
 
-
-
     // Dashboard
-    // Route::prefix("dashboard")->group(function () {
-    //     Route::get('/stats', [DashboardController::class, 'getDashboardStats']);
+    Route::prefix("statistics")->group(function () {
+        Route::get('/dashboard', [StatisticsController::class, 'dashboard']);
+    });
+
+
+
 
     //     Route::get('/export', [DashboardController::class, 'exportDashboard']);
     //     Route::get('/ported', [ProductController::class, 'getPortedProducts']);
