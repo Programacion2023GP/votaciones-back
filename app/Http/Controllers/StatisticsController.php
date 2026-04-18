@@ -53,7 +53,7 @@ class StatisticsController extends Controller
         $votesByDistrict = $this->getVotesByDistrict();
 
         $data = [
-            'total' => [
+            'totals' => [
                 'projects' => $totalProjects,
                 'participations' => $totalParticipations,
                 'ballots' => $totalBallots,
