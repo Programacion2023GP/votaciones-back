@@ -58,6 +58,14 @@ class StatisticsController extends Controller
         // 9. (NUEVO) Conteo de votos nulos (generales y por distrito)
         $nullVotesStats = $this->getNullVotesStats();
 
+        // 10. Participaciones por casilla (número de ciudadanos que registraron su participación)
+        $participationsByCasilla = DB::table('vw_users as u')
+            ->join('participations as p', 'u.id', '=', 'p.user_id')
+            ->select('u.casilla_place', 'u.casilla_type', DB::raw('count(*) as total'))
+            ->groupBy('u.casilla_place', 'u.casilla_type')
+            ->orderBy('total', 'desc')
+            ->get();
+
         $data = [
             'status' => true,
             'data' => [
@@ -69,6 +77,7 @@ class StatisticsController extends Controller
                     'null_votes' => $nullVotesStats['total_null_votes'], // añadido
                 ],
                 'participations_by_type' => $participationsByType,
+                'participations_by_casilla' => $participationsByCasilla,
                 'ballots_by_casilla' => $ballotsByCasilla,
                 'ballots_by_district' => $ballotsByDistrict,
                 'top_projects' => $topProjects,
