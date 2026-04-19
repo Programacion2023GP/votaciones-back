@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Ballot;
+use App\Models\ObjResponse;
 use App\Models\Participation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -57,7 +58,7 @@ class StatisticsController extends Controller
         // 9. (NUEVO) Conteo de votos nulos (generales y por distrito)
         $nullVotesStats = $this->getNullVotesStats();
 
-        return response()->json([
+        $data = [
             'status' => true,
             'data' => [
                 'totals' => [
@@ -76,7 +77,9 @@ class StatisticsController extends Controller
                 'top_projects_by_district' => $topProjectsByDistrict,      // nuevo
                 'null_votes_by_district' => $nullVotesStats['by_district'], // nuevo
             ]
-        ]);
+        ];
+
+        return ObjResponse::success($data);
     }
 
     /**
