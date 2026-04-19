@@ -112,9 +112,9 @@ class StatisticsController extends Controller
             JOIN projects p ON p.id = votes.project_id
             WHERE votes.project_id IS NOT NULL AND votes.project_id > 0
             GROUP BY p.id, p.project_name, p.assigned_district
-            ORDER BY votos DESC
-            LIMIT ?
-        ", [$limit]);
+            ORDER BY votos DESC");
+        //     LIMIT ?
+        // ", [$limit]);
     }
 
     /**
