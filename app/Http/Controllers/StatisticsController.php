@@ -75,7 +75,7 @@ class StatisticsController extends Controller
     private function getTopProjects(int $limit = 10): array
     {
         return DB::select("
-            SELECT p.id, CONCAT(folio,' - ',p.project_name) project_name, p.assigned_district, COUNT(*) as votos
+            SELECT p.id, CONCAT(folio,' - ',p.project_name, ' - ',p.project_place) project_name, p.assigned_district, COUNT(*) as votos
             FROM (
                 SELECT vote_1 as project_id FROM ballots
                 UNION ALL
