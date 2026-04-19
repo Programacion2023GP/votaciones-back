@@ -42,9 +42,14 @@ class AuthController extends Controller
             ->orderBy('id', 'desc')
             ->first();
 
+         $userAuth = User::where($field, $value)
+            ->where('active', 1)
+            ->orderBy('id', 'desc')
+            ->first();
+
 
          // if (!$user) {
-         if (!$user || !Hash::check($request->password, $user->password)) {
+         if (!$user || !Hash::check($request->password, $userAuth->password)) {
             Log::alert("El usuario y/o contraseña no estan bien");
             throw ValidationException::withMessages([
                'message' => 'Credenciales incorrectas'

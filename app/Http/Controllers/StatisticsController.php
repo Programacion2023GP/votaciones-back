@@ -38,7 +38,8 @@ class StatisticsController extends Controller
         // 4. Boletas por distrito (usando casilla_district de vw_users)
         $ballotsByDistrict = DB::table('vw_users as u')
             ->join('ballots as b', 'u.id', '=', 'b.user_id')
-            ->select('u.casilla_district', DB::raw('count(*) as total'))
+            ->select(DB::raw("CASE WHEN u.casilla_district IS NULL THEN 'Casilla Especial' ELSE CAST(u.casilla_district AS CHAR) END as casilla_district"), DB::raw('count(*) as total'))
+            // ->select('u.casilla_district', DB::raw('count(*) as total'))
             ->groupBy('u.casilla_district')
             ->orderBy('u.casilla_district')
             ->get();
