@@ -43,8 +43,8 @@ class AuthController extends Controller
             ->first();
 
 
-         // if (!$user || !Hash::check($request->password, $user->password)) {
-         if (!$user) {
+         // if (!$user) {
+         if (!$user || !Hash::check($request->password, $user->password)) {
             Log::alert("El usuario y/o contraseña no estan bien");
             throw ValidationException::withMessages([
                'message' => 'Credenciales incorrectas'

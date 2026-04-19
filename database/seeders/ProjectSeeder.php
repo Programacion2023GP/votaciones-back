@@ -645,6 +645,20 @@ class ProjectSeeder extends Seeder
                 'viability' => true,
             ],
             [
+                'folio' => 111,
+                'assigned_district' => 12,
+                'project_name' => 'CONSTRUCCIÓN DE PLAZA BIOSALUDABLE',
+                'project_place' => 'COL. TIERRA BLANCA',
+                'viability' => true,
+            ],
+            [
+                'folio' => 112,
+                'assigned_district' => 12,
+                'project_name' => 'CIRCUITO DE EJERCITADORES EN PLAZA',
+                'project_place' => 'COL. TIERRA BLANCA',
+                'viability' => true,
+            ],
+            [
                 'folio' => 113,
                 'assigned_district' => 12,
                 'project_name' => 'REHABILITACIÓN DE PLAZA',
@@ -712,6 +726,13 @@ class ProjectSeeder extends Seeder
                 'assigned_district' => 11,
                 'project_name' => 'SUMINISTRO Y COLOCACION DE PASTO SINTETICO EN CANCHA DE FUTBOL',
                 'project_place' => 'COL. FILADELFIA',
+                'viability' => true,
+            ],
+            [
+                'folio' => 124,
+                'assigned_district' => 11,
+                'project_name' => 'REHABILITACION DE PLAZA',
+                'project_place' => 'COL. MIRAVALLE',
                 'viability' => true,
             ],
             [
@@ -999,20 +1020,6 @@ class ProjectSeeder extends Seeder
                 'assigned_district' => 10,
                 'project_name' => 'PARADEROS PARA AUTOBUS',
                 'project_place' => 'EJ. SAN FELIPE',
-                'viability' => true,
-            ],
-            [
-                'folio' => 111,
-                'assigned_district' => 12,
-                'project_name' => 'CONSTRUCCIÓN DE PLAZA BIOSALUDABLE',
-                'project_place' => 'COL. TIERRA BLANCA',
-                'viability' => true,
-            ],
-            [
-                'folio' => 124,
-                'assigned_district' => 11,
-                'project_name' => 'REHABILITACION DE PLAZA',
-                'project_place' => 'COL. MIRAVALLE',
                 'viability' => true,
             ],
         ];
