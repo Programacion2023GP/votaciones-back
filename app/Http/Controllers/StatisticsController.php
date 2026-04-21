@@ -66,6 +66,12 @@ class StatisticsController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
+        // 11. Total de votos válidos (omitir nulos/ceros)
+        $totalVotes = $this->getTotalVotes();
+
+        // 12. Votos de proyectos por casilla (para listado y gráficas)
+        $votesByCasilla = $this->getVotesByCasilla();
+
         $data = [
             'status' => true,
             'data' => [
@@ -75,6 +81,7 @@ class StatisticsController extends Controller
                     'ballots' => $totalBallots,
                     'active_casillas' => $totalCasillasActivas,
                     'null_votes' => $nullVotesStats['total_null_votes'], // añadido
+                    'total_votes' => $totalVotes, // nuevo
                 ],
                 'participations_by_type' => $participationsByType,
                 'participations_by_casilla' => $participationsByCasilla,
@@ -85,6 +92,7 @@ class StatisticsController extends Controller
                 'votes_by_district' => $votesByDistrict,
                 'top_projects_by_district' => $topProjectsByDistrict,      // nuevo
                 'null_votes_by_district' => $nullVotesStats['by_district'], // nuevo
+                'votes_by_casilla' => $votesByCasilla, // nuevo
             ]
         ];
 
@@ -158,7 +166,7 @@ class StatisticsController extends Controller
      * (NUEVO) Top N proyectos más votados por distrito.
      * Retorna un array indexado por distrito, cada elemento con su top 10.
      */
-    private function getTopProjectsByDistrict(int $limit = 10): array
+    private function getTopProjectsByDistrict(int $limit = 3): array
     {
         $sql = "
             SELECT 
@@ -199,7 +207,7 @@ class StatisticsController extends Controller
     }
 
     /**
-     * (NUEVO) Estadísticas de votos nulos.
+     * Estadísticas de votos nulos.
      * Retorna:
      * - total_null_votes: cantidad total de campos vote_* que son NULL o 0.
      * - by_district: array con la cantidad de votos nulos por distrito (usando la casilla del votante).
@@ -242,5 +250,58 @@ class StatisticsController extends Controller
             'total_null_votes' => (int) ($totalNull->total_nulos ?? 0),
             'by_district' => $byDistrict,
         ];
+    }
+
+    /**
+     * Total de votos válidos (suma de todos los campos vote_* que no son NULL ni 0)
+     */
+    private function getTotalVotes(): int
+    {
+        $result = DB::selectOne("
+            SELECT SUM(
+                (CASE WHEN vote_1 IS NOT NULL AND vote_1 > 0 THEN 1 ELSE 0 END) +
+                (CASE WHEN vote_2 IS NOT NULL AND vote_2 > 0 THEN 1 ELSE 0 END) +
+                (CASE WHEN vote_3 IS NOT NULL AND vote_3 > 0 THEN 1 ELSE 0 END) +
+                (CASE WHEN vote_4 IS NOT NULL AND vote_4 > 0 THEN 1 ELSE 0 END) +
+                (CASE WHEN vote_5 IS NOT NULL AND vote_5 > 0 THEN 1 ELSE 0 END)
+            ) as total
+            FROM ballots
+            WHERE deleted_at IS NULL
+        ");
+        return (int) ($result->total ?? 0);
+    }
+
+    /**
+     * Votos de proyectos por casilla.
+     * Retorna un array con: casilla_id, casilla_place, project_id, project_name, votes
+     */
+    private function getVotesByCasilla(): array
+    {
+        return DB::select("
+            SELECT 
+                u.id as casilla_id,
+                p.folio,
+                u.casilla_place,
+                p.assigned_district,
+                p.id,
+                CONCAT(p.project_name,' - ',p.project_place) as project_name,
+                COUNT(*) as votes
+            FROM (
+                SELECT user_id, vote_1 as id FROM ballots
+                UNION ALL
+                SELECT user_id, vote_2 FROM ballots
+                UNION ALL
+                SELECT user_id, vote_3 FROM ballots
+                UNION ALL
+                SELECT user_id, vote_4 FROM ballots
+                UNION ALL
+                SELECT user_id, vote_5 FROM ballots
+            ) AS votes
+            JOIN vw_users u ON u.id = votes.user_id
+            JOIN projects p ON p.id = votes.id
+            WHERE votes.id IS NOT NULL AND votes.id > 0
+            GROUP BY u.id, u.casilla_place, p.id, p.project_name
+            ORDER BY u.casilla_place, votes DESC
+        ");
     }
 }
