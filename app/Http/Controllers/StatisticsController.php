@@ -53,7 +53,7 @@ class StatisticsController extends Controller
         $votesByDistrict = $this->getVotesByDistrict();
 
         // 8. (NUEVO) Top 10 proyectos más votados por distrito
-        $topProjectsByDistrict = $this->getTopProjectsByDistrict(10);
+        $topProjectsByDistrict = $this->getTopProjectsByDistrict(3);
 
         // 9. (NUEVO) Conteo de votos nulos (generales y por distrito)
         $nullVotesStats = $this->getNullVotesStats();
@@ -166,7 +166,7 @@ class StatisticsController extends Controller
      * (NUEVO) Top N proyectos más votados por distrito.
      * Retorna un array indexado por distrito, cada elemento con su top 10.
      */
-    private function getTopProjectsByDistrict(int $limit = 3): array
+    private function getTopProjectsByDistrict(int $limit = 10): array
     {
         $sql = "
             SELECT 
@@ -195,13 +195,13 @@ class StatisticsController extends Controller
             if (!isset($result[$district])) {
                 $result[$district] = [];
             }
-            if (count($result[$district]) < $limit) {
-                $result[$district][] = [
-                    'id' => $row->id,
-                    'project_name' => $row->project_name,
-                    'votos' => $row->votos,
-                ];
-            }
+            // if (count($result[$district]) < $limit) {
+            $result[$district][] = [
+                'id' => $row->id,
+                'project_name' => $row->project_name,
+                'votos' => $row->votos,
+            ];
+            // }
         }
         return $result;
     }
